@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 import chalk from 'chalk'
 const connection = async()=>{

@@ -18,11 +18,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // Reference to the User collection
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
+
+
 
 
 const User = mongoose.model("User", userSchema);
