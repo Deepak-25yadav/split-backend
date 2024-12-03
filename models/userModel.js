@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to the User collection
+        ref: "User", 
       },
     ],
   },
@@ -29,8 +29,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-
 
 
 const User = mongoose.model("User", userSchema);

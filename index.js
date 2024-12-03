@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import { connection } from "./config/db.js";
 import { userRouter } from "./routes/userRouter.js";
 import { groupsRouter } from "./routes/groupsRouter.js";
+import { groupExpenseRouter } from "./routes/groupExpenseRouter.js";
 
 
 
@@ -26,7 +27,10 @@ try {
 
 
 app.use("/api/user",userRouter)
+
 app.use("/api/groups", groupsRouter);
+
+app.use("/api/expenses", groupExpenseRouter);
 
 app.listen(process.env.PORT||8800,()=>{
    try {
