@@ -17,6 +17,7 @@ const createGroup = async (req, res) => {
     }
 
     
+    
     const creator = await User.findById(userId);
 
     if (!creator) {
