@@ -1,3 +1,6 @@
+
+// New updated schema of groupExpenseModel.js after removing name and email from groupMembers.
+
 import mongoose from "mongoose";
 
 const groupExpenseSchema = new mongoose.Schema(
@@ -29,14 +32,6 @@ const groupExpenseSchema = new mongoose.Schema(
           ref: "User",
           required: true,
         },
-        name: {
-          type: String,
-          required: true,
-        },
-        email: {
-          type: String,
-          required: true,
-        },
         paymentAmount: {
           type: Number,
           required: true,
@@ -57,3 +52,4 @@ const groupExpenseSchema = new mongoose.Schema(
 const GroupExpense = mongoose.model("GroupExpense", groupExpenseSchema);
 
 export default GroupExpense;
+

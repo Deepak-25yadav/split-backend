@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
 
+
+
+
 const registerUser = async (req, res) => {
 
   const {name,email, password} = req.body;
@@ -34,6 +37,8 @@ const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong in Signup", error });
   }
 };
+
+
 
 
 
@@ -78,6 +83,9 @@ const loginUser = async (req, res) => {
 
 
 
+
+
+
 const userDetails = async (req,res)=>{
 
   const userId =req.user.userId
@@ -115,6 +123,12 @@ const addFriend = async (req, res) => {
 
     
     const user = await User.findById(userId);
+
+
+    if(user._id.equals(friend._id)){
+      return res.status(400).json({message:"You can not add yourself in your friend contact"})
+     }
+
     if (user.friends.includes(friend._id)) {
       return res.status(400).json({ message: "This user is already your friend" });
     }
@@ -138,6 +152,8 @@ const addFriend = async (req, res) => {
 
 
 
+
+
 const getFriendList = async (req, res) => {
   
   const userId = req.user.userId; 
@@ -155,6 +171,9 @@ const getFriendList = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong", error });
   }
 };
+
+
+
 
 
 export {registerUser, loginUser, addFriend, getFriendList, userDetails}
