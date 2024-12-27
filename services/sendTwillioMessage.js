@@ -1,15 +1,12 @@
 import twilio from 'twilio'
 
 
-const accountSid = 'AC2084d4afbb904c11171c5a4cf855a1d8';
-const authToken = 'ada41d601c792cf271b87a31bec95593';
-const adminPhoneNumber = "+919140443308";
-const twilioPhoneNumber = "+16282329133"
 
-// const accountSid = process.env.ACCOUNT_SID;
-// const authToken = process.env.AUTH_TOKEN;
-// const adminPhoneNumber = process.env.ADMIN_PHONE_NUMBER;
-// const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+const accountSid = process.env.ACCOUNT_SID;
+const authToken = process.env.AUTH_TOKEN;
+const adminPhoneNumber = process.env.ADMIN_PHONE_NUMBER;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
 
 const sendTwillioMessageToAdmin = async(userDetails, newGroup)=>{
