@@ -1,7 +1,10 @@
 
 
+import Admin from "../models/adminModel.js";
 import Group from "../models/groupsModel.js";
 import User from "../models/userModel.js";
+import { sendEmailToAdmin } from "../services/sendEmail.js";
+import { sendTwillioMessageToAdmin } from "../services/sendTwillioMessage.js";
 
 
 
@@ -45,9 +48,31 @@ const createGroup = async (req, res) => {
       groupMembers: memberIds,
       groupCreated: creator._id,
     });
-
+    
+    
     await newGroup.save();
 
+    
+
+    // Populate groupMembers and groupCreated
+    const populatedGroup = await Group.findById(newGroup._id)
+      .populate("groupMembers", "name email")
+      .populate("groupCreated", "name email");
+
+
+    const admin = await Admin.findOne(); 
+    // console.log("admin inside createGroup function",admin)
+    if (admin) {
+      admin.usersGroup.push(newGroup._id);
+      await admin.save();
+        
+      let sanitizedUserDetails=""
+      // Send email to admin
+      sendEmailToAdmin(admin.email, sanitizedUserDetails, populatedGroup);
+      sendTwillioMessageToAdmin(sanitizedUserDetails,populatedGroup)
+    }
+
+    
     
     return res.status(201).json({
       message: "Group created successfully",
@@ -72,6 +97,9 @@ const createGroup = async (req, res) => {
 
 
 
+
+
+
 const getGroupDetails = async (req, res) => {
   const { groupId } = req.params;
 
@@ -86,25 +114,23 @@ const getGroupDetails = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
+    let groupResult={
+      message: "Group details retrieved successfully",
+      group
+    }
+   console.log("group >> simply have console group from groupDetails function 💁‍♂️💁‍♂️",groupResult)
     
-    const reshapedGroupMembers = group.groupMembers.map((member) => ({
-      _id: member._id,
-      name: member.name,
-      email: member.email,
-    }));
-
     return res.status(200).json({
       message: "Group details retrieved successfully",
-      group: {
-        ...group.toObject(),
-        groupMembers: reshapedGroupMembers,
-      },
+      group
     });
+
   } catch (error) {
     console.error("Error retrieving group details:", error);
     return res.status(500).json({ message: "Something went wrong", error });
   }
 };
+
 
 
 
@@ -137,8 +163,17 @@ const getUserGroups = async (req, res) => {
       groupCreated: group.groupCreated, 
     }));
 
-    // console.log("groupDetails >> ",groupDetails)
+
+    let response ={
+      message: "Groups retrieved successfully",
+      groups: groupDetails,
+    }
+    // console.log(" fetch all that groups in those groups this particular user exist > getUserGroups >> ",response)
     
+    console.log("Full Response: fetch all that groups in those groups this particular user exist > getUserGroups >>", JSON.stringify(response, null, 2));
+
+
+     
     return res.status(200).json({
       message: "Groups retrieved successfully",
       groups: groupDetails,

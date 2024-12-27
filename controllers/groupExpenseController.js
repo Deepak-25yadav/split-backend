@@ -1,76 +1,72 @@
 
 import GroupExpense from "../models/groupExpenseModel.js";
 import Group from "../models/groupsModel.js";
-import User from "../models/userModel.js"; 
-
+// import User from "../models/userModel.js"; 
 
 
 
 const createGroupExpense = async (req, res) => {
-  const { groupId, totalAmount, expenseDescription, groupMembers } = req.body;
+  const { groupId, totalAmount, expenseDescription, groupMembers, expensedDate, payeeMembers } = req.body;
   const expenseCreatedBy = req.user.userId; // Authenticated user's ID
 
   try {
-
-
+    // Validate required fields
     if (!groupId) {
       return res.status(400).json({ message: "Group ID is required" });
     }
-
-  
     if (!totalAmount) {
       return res.status(400).json({ message: "Total amount is required" });
     }
-
-    
     if (!expenseDescription) {
       return res.status(400).json({ message: "Expense description is required" });
     }
-
-    
-    if (!groupMembers) {
-      return res.status(400).json({ message: "Group members are required" });
+    if (!expensedDate) {
+      return res.status(400).json({ message: "Expensed date is required" });
+    }
+    if (!groupMembers || groupMembers.length === 0) {
+      return res.status(400).json({ message: "Group members are required and must include at least one member" });
+    }
+    if (!payeeMembers || payeeMembers.length === 0) {
+      return res.status(400).json({ message: "Payee members are required and must include at least one member" });
     }
 
-    
-    if (groupMembers.length === 0) {
-      return res.status(400).json({ message: "Group must have at least one member" });
-    }
-
-
-    
+    // Verify group existence
     const group = await Group.findById(groupId);
-
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    
+    // Validate that all groupMembers belong to the group
     const isValidMembers = groupMembers.every((member) =>
       group.groupMembers.some((gm) => gm.toString() === member._id)
     );
-
-
     if (!isValidMembers) {
       return res.status(400).json({ message: "Invalid group members provided" });
     }
 
-    
+    // Create new expense
     const newExpense = new GroupExpense({
       groupId,
       totalAmount,
       expenseDescription,
       expenseCreatedBy,
+      expensedDate,
       groupMembers: groupMembers.map((member) => ({
         _id: member._id,
         paymentAmount: member.paymentAmount,
         paymentStatus: member.paymentStatus,
       })),
+      payeeMembers: payeeMembers.map((payee) => ({
+        _id: payee._id,
+        payeeAmount: payee.payeeAmount,
+        balanceAmount: payee.balanceAmount,
+        balanceStatus: payee.balanceStatus,
+      })),
     });
 
     await newExpense.save();
 
-    
+    // Populate the created expense for response
     const populatedExpense = await newExpense.populate("expenseCreatedBy", "name email");
 
     return res.status(201).json({
@@ -82,6 +78,7 @@ const createGroupExpense = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong", error });
   }
 };
+
 
 
 
@@ -145,7 +142,8 @@ const getExpenseDetails = async (req, res) => {
     if (!expense) {
       return res.status(404).json({ message: "Expense not found" });
     }
-
+      
+    
     // Format the response to match the previous format
     const formattedExpense = {
       _id: expense._id,

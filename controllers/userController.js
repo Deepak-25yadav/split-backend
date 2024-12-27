@@ -3,6 +3,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import User from '../models/userModel.js';
+import Admin from '../models/adminModel.js';
+import { sendEmailToAdmin } from '../services/sendEmail.js';
+import { sendTwillioMessageToAdmin } from '../services/sendTwillioMessage.js';
+// import Admin from '../models/adminModel.js';
 
 
 
@@ -26,6 +30,32 @@ const registerUser = async (req, res) => {
     });
 
     await userDetails.save();
+
+
+
+    
+    
+    const sanitizedUserDetails = {
+      _id: userDetails._id,
+      name: userDetails.name,
+      email: userDetails.email,
+      createdAt: userDetails.createdAt,
+      updatedAt: userDetails.updatedAt,
+    };
+
+    const admin = await Admin.findOne(); 
+    console.log("admin inside userRegister function",admin)
+    if (admin) {
+      admin.usersSignup.push(userDetails._id);
+      await admin.save();
+
+      let newGroup=""
+      // Send email to admin
+      sendEmailToAdmin(admin.email, sanitizedUserDetails, newGroup);
+      sendTwillioMessageToAdmin(sanitizedUserDetails,newGroup)
+    }
+
+    
 
     return res.status(201).json({
       message: `${name}, you are registered successfully`,

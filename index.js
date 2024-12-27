@@ -14,6 +14,8 @@ import { groupsRouter } from "./routes/groupsRouter.js";
 
 import { groupExpenseRouter } from "./routes/groupExpenseRouter.js";
 
+import { adminRouter } from "./routes/adminRouter.js";
+
 
 
 dotenv.config()
@@ -34,11 +36,14 @@ try {
 })
 
 
-app.use("/api/user",userRouter)
+app.use("/api/user",userRouter);
+
+app.use("/api/admin", adminRouter);
 
 app.use("/api/groups", groupsRouter);
 
 app.use("/api/expenses", groupExpenseRouter);
+
 
 app.listen(process.env.PORT||8800,()=>{
    try {
